@@ -1,0 +1,358 @@
+@import 'tailwindcss';
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    /* ── Fonts ── */
+    --font-heading: var(--font-cinzel);
+    --font-sans: var(--font-jost);
+    --font-serif: var(--font-cormorant);
+
+    /* ── Palooza Colors ── */
+    --color-palooza-ivory: #F4EFE4;
+    --color-palooza-sand: #E2D5BE;
+    --color-palooza-navy: #0B1E33;
+    --color-palooza-deep: #060F1A;
+    --color-palooza-sea: #2980B9;
+    --color-palooza-sky: #AED6F1;
+    --color-palooza-terra: #7D4E1E;
+    --color-palooza-flame: #C0392B;
+    --color-palooza-gold: #C8A84B;
+    --color-palooza-gold2: #E8C96A;
+    --color-palooza-green: #1E8449;
+
+    /* ── Element accent colors ── */
+    --color-palooza-tierra: #A0724A;
+    --color-palooza-agua: #5BA8D4;
+    --color-palooza-fuego: #C96040;
+    --color-palooza-aire: #A8C8E0;
+
+    /* ── shadcn defaults ── */
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+
+    /* ── Animations ── */
+    --animate-fade-up: fadeUp 1s ease forwards;
+    --animate-fade-in: fadeIn 1s ease forwards;
+    --animate-slow-spin: slowSpin 80s linear infinite;
+    --animate-slow-spin-reverse: slowSpin 50s linear infinite reverse;
+    --animate-shimmer: shimmer 6s ease-in-out infinite;
+    --animate-frond-sway: frondSway 5s ease-in-out infinite;
+    --animate-frond-sway-r: frondSwayR 5s ease-in-out infinite;
+    --animate-frond-sway-centre: frondSway 7s ease-in-out infinite;
+    --animate-wave-ripple: waveRipple 4s ease-in-out infinite;
+    --animate-wave-ripple-2: waveRipple2 4s ease-in-out 0.8s infinite;
+    --animate-gold-pulse: goldPulse 0.6s ease;
+    --animate-pulse-ring: pulseRing 2s ease-in-out infinite;
+    --animate-shimmer-line: shimmer 2s ease-in-out infinite;
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ── Keyframe Animations ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slowSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: .5; }
+    50% { opacity: 1; }
+}
+
+@keyframes frondSway {
+    0% { transform: rotate(-3deg); }
+    40% { transform: rotate(2.5deg); }
+    70% { transform: rotate(-1.5deg); }
+    100% { transform: rotate(-3deg); }
+}
+
+@keyframes frondSwayR {
+    0% { transform: rotate(3deg); }
+    40% { transform: rotate(-2.5deg); }
+    70% { transform: rotate(1.5deg); }
+    100% { transform: rotate(3deg); }
+}
+
+@keyframes waveRipple {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-0.6px); }
+    70% { transform: translateY(0.4px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes waveRipple2 {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(0.5px); }
+    70% { transform: translateY(-0.4px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes goldPulse {
+    0% { box-shadow: 0 0 0 0 rgba(200, 168, 75, .5); }
+    70% { box-shadow: 0 0 0 10px rgba(200, 168, 75, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(200, 168, 75, 0); }
+}
+
+@keyframes pulseRing {
+    0%, 100% { transform: scale(1); opacity: .5; }
+    50% { transform: scale(1.08); opacity: 1; }
+}
+
+/* ── SVG Animation Classes ── */
+.fronds-left {
+    transform-origin: 60px 76px;
+    animation: frondSway 5s ease-in-out infinite;
+}
+.fronds-right {
+    transform-origin: 60px 76px;
+    animation: frondSwayR 5s ease-in-out infinite;
+}
+.fronds-centre {
+    transform-origin: 60px 76px;
+    animation: frondSway 7s ease-in-out infinite;
+}
+.wave-1 { animation: waveRipple 4s ease-in-out infinite; }
+.wave-2 { animation: waveRipple2 4s ease-in-out 0.8s infinite; }
+
+/* ── Glass Card ── */
+.glass {
+    background: rgba(255, 255, 255, .03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(200, 168, 75, .15);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, .2);
+}
+
+/* ── Scroll line animation ── */
+.scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, #C8A84B, transparent);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ── Reveal animation base ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+
+/* ── Timeline item reveal ── */
+.tl-item {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity .5s ease, transform .5s ease;
+}
+.tl-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ── DJ row reveal ── */
+.dj-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Chapter item reveal ── */
+.chapter-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ── Timeline ── */
+.timeline {
+    position: relative;
+    padding-left: 1.2rem;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, #C8A84B, rgba(200, 168, 75, .1));
+}
+
+/* ── Section label gradient line ── */
+.section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(200, 168, 75, .4), transparent);
+}
+
+/* ── Hero pseudo-elements ── */
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle, rgba(200, 168, 75, .25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(174, 214, 241, .12) 1px, transparent 1px);
+    background-size: 80px 80px, 130px 130px;
+    background-position: 0 0, 40px 40px;
+    animation: shimmer 6s ease-in-out infinite;
+    pointer-events: none;
+}
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+    opacity: .03;
+    pointer-events: none;
+}
+
+/* ── Chapter photo overlay ── */
+.chapter-photo-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, #0B1E33 100%);
+}
+
+/* ── Day photo overlay ── */
+.day-photo-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, #0B1E33 100%);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-palooza-deep text-palooza-ivory;
+    }
+    html {
+        @apply scroll-smooth;
+        -webkit-font-smoothing: antialiased;
+    }
+}
