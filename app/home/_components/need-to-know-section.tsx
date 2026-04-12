@@ -1,65 +1,19 @@
+'use client';
+
 import SectionHeader from '@/components/global/section-header';
 import RevealWrapper from '@/components/global/reveal-wrapper';
-
-const NTK_ITEMS = [
-  {
-    icon: '⛵',
-    title: 'Boats — Friday & Saturday',
-    detail:
-      'Depart Marina Ibiza at 11:30am Friday and 11:00am Saturday. Be there 15 minutes early — the boats will not wait. Your designated boats will be sent to you prior to the event.',
-    delay: 0,
-  },
-  {
-    icon: '🎉',
-    title: 'Saturday Villa Party',
-    detail:
-      'Location will be revealed closer to the date. Dress to the fire theme. Khenya & Paede B2B from late. This is a unique night.',
-    delay: 100,
-  },
-  {
-    icon: '🔒',
-    title: 'No Plus-Ones',
-    detail:
-      'This is a strictly private event. No additional guests without prior approval from Michael.',
-    delay: 200,
-  },
-  {
-    icon: '🚕',
-    title: 'Transport Warning',
-    detail:
-      'Taxis and Uber are unreliable late at night in peak season. Pre-book private transfers which is your best option. Cabify and Bolt are otherwise your best bet — download before you arrive.',
-    delay: 300,
-  },
-  {
-    icon: '✈️',
-    title: 'Flights',
-    detail:
-      'Aim to land Thursday 30 July in time for 20:30 dinner in the middle of the island. Book departures from Sunday evening — Jondal runs late.',
-    delay: 100,
-  },
-  {
-    icon: '💬',
-    title: 'Questions?',
-    detail: 'Message Michael directly for anything not covered here.',
-    delay: 200,
-  },
-  {
-    icon: '📵',
-    title: 'No Social Media',
-    detail:
-      'Please respect the privacy of all guests. No posting to social media without permission.',
-    delay: 0,
-  },
-];
+import { useContent } from '@/lib/useContent';
 
 export default function NeedToKnowSection() {
+  const { needToKnow } = useContent();
+
   return (
     <section id='needtoknow' className='py-20 px-6 bg-palooza-deep'>
       <div className='max-w-[680px] mx-auto'>
         <SectionHeader label='Essential Info' title='Need to Know' />
         <div className='flex flex-col gap-[0.8rem]'>
-          {NTK_ITEMS.map((item) => (
-            <RevealWrapper key={item.title} delay={item.delay}>
+          {needToKnow.items.map((item, i) => (
+            <RevealWrapper key={item.title} delay={i * 80}>
               <div
                 className='flex gap-4 items-start py-[0.9rem] px-[1.1rem] transition-colors duration-300 hover:border-l-palooza-gold'
                 style={{
@@ -67,9 +21,7 @@ export default function NeedToKnowSection() {
                   background: 'rgba(200, 168, 75, .04)',
                 }}
               >
-                <div className='text-[1.1rem] shrink-0 mt-[0.05rem]'>
-                  {item.icon}
-                </div>
+                <div className='text-[1.1rem] shrink-0 mt-[0.05rem]'>{item.icon}</div>
                 <div>
                   <div className='text-[0.72rem] tracking-[0.12em] uppercase text-palooza-ivory mb-[0.2rem] font-normal'>
                     {item.title}

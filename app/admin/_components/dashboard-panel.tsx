@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import type { RsvpEntry } from "../page";
+import api from '@/lib/api';
+import type { RsvpEntry } from '../types';
 
 const EVENTS = [
   { key: "soho", label: "A Mi Manera — Thu" },
@@ -11,7 +12,6 @@ const EVENTS = [
   { key: "jondal", label: "Jondal — Sun" },
 ];
 
-const ADMIN_PASSWORD = "palooza2025host";
 
 interface DashboardPanelProps {
   rsvps: RsvpEntry[];
@@ -38,13 +38,11 @@ export default function DashboardPanel({ rsvps, onRefresh }: DashboardPanelProps
 
   async function handleRefresh() {
     try {
-      const res = await fetch("/.netlify/functions/save-rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ adminPassword: ADMIN_PASSWORD }),
+      const token = localStorage.getItem('palooza_admin_token') || '';
+      const { data } = await api.get('/api/rsvps', {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      if (res.ok) onRefresh(data.rsvps || []);
+      if (data.rsvps) onRefresh(data.rsvps);
     } catch {
       /* ignore */
     }

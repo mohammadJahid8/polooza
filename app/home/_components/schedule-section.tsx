@@ -2,147 +2,20 @@
 
 import { useState, useEffect, useRef } from 'react';
 import SectionHeader from '@/components/global/section-header';
+import { useContent } from '@/lib/useContent';
 
-interface TimelineItem {
-  time: string;
-  event: string;
-  note: string;
-}
 
-interface DayData {
-  element: string;
-  emoji: string;
-  tabLabel: string;
-  name: string;
-  subtitle: string;
-  date: string;
-  badgeClass: string;
-  bgGradient: string;
-  photo: { src: string; alt: string; venue: string; time: string };
-  timeline: TimelineItem[];
-}
-
-const DAYS: DayData[] = [
-  {
-    element: 'tierra',
-    emoji: '🌍',
-    tabLabel: 'Thu 30',
-    name: 'Tierra — Earth',
-    subtitle: 'Thursday, 30 July',
-    date: 'Thursday, 30 July',
-    badgeClass: 'bg-[rgba(125,78,30,.3)] border border-[rgba(125,78,30,.6)]',
-    bgGradient:
-      'linear-gradient(180deg, rgba(125,78,30,.06) 0%, transparent 60%)',
-    photo: {
-      src: '/event-1.jpg',
-      alt: 'A Mi Manera, San Juan',
-      venue: 'A Mi Manera, San Juan',
-      time: 'Thursday · Dinner & Party',
-    },
-    timeline: [
-      {
-        time: '20:30',
-        event: 'A Mi Manera — Private Takeover',
-        note: 'Secret garden dinner & party · San Juan finca',
-      },
-      {
-        time: 'Late',
-        event: 'DJ Set — Nfrtiti',
-        note: 'Party inside the finca',
-      },
-      {
-        time: '02:30',
-        event: 'Close',
-        note: 'Big days ahead — rest up (or go out…)',
-      },
-    ],
-  },
-  {
-    element: 'agua',
-    emoji: '🌊',
-    tabLabel: 'Fri 31',
-    name: 'Agua — Water',
-    subtitle: 'Friday, 31 July',
-    date: 'Friday, 31 July',
-    badgeClass: 'bg-[rgba(41,128,185,.25)] border border-[rgba(41,128,185,.5)]',
-    bgGradient:
-      'linear-gradient(180deg, rgba(41,128,185,.07) 0%, transparent 60%)',
-    photo: {
-      src: '/event-2.jpg',
-      alt: 'Cala Gracioneta',
-      venue: 'First Boat Day — Ibiza Lunch + Blue Marlin',
-      time: 'Friday · On the Water',
-    },
-    timeline: [
-      {
-        time: '11:30',
-        event: 'Boats Depart',
-        note: "Meet at Marina Ibiza — don't be late",
-      },
-      { time: 'Afternoon', event: 'Lunch at Cala Gracioneta', note: '' },
-      { time: '19:30', event: 'Blue Marlin', note: 'Palooza returns…' },
-      {
-        time: 'Late',
-        event: 'Afters',
-        note: 'Location to be confirmed — watch this space, confirm if you are keen…',
-      },
-    ],
-  },
-  {
-    element: 'fuego',
-    emoji: '🔥',
-    tabLabel: 'Sat 1',
-    name: 'Fuego — Fire',
-    subtitle: 'Saturday, 1 August',
-    date: 'Saturday, 1 August',
-    badgeClass: 'bg-[rgba(192,57,43,.25)] border border-[rgba(192,57,43,.5)]',
-    bgGradient:
-      'linear-gradient(180deg, rgba(192,57,43,.07) 0%, transparent 60%)',
-    photo: {
-      src: '/event-3.jpg',
-      alt: 'Es Molí del Sal',
-      venue: 'Formentera Boat Day + Private Villa Party',
-      time: 'Saturday · The Fire Night',
-    },
-    timeline: [
-      { time: '11:00', event: 'Boats Depart', note: 'Meet at Marina Ibiza' },
-      { time: 'Afternoon', event: 'Lunch at Es Molí del Sal', note: '' },
-      {
-        time: '21:45 till 5am',
-        event: 'Private Villa Party',
-        note: 'Villa Location revealed closer to the date',
-      },
-      {
-        time: 'Late',
-        event: 'Khenya & Paede B2B',
-        note: 'Back-to-back headline set',
-      },
-    ],
-  },
-  {
-    element: 'aire',
-    emoji: '💨',
-    tabLabel: 'Sun 2',
-    name: 'Aire — Air',
-    subtitle: 'Sunday, 2 August',
-    date: 'Sunday, 2 August',
-    badgeClass:
-      'bg-[rgba(174,214,241,.2)] border border-[rgba(174,214,241,.4)]',
-    bgGradient:
-      'linear-gradient(180deg, rgba(174,214,241,.05) 0%, transparent 60%)',
-    photo: {
-      src: '/event-4.jpg',
-      alt: 'Jondal Beach',
-      venue: 'Jondal Beach',
-      time: 'Sunday · Recovery · till 8pm',
-    },
-    timeline: [
-      { time: '14:30', event: 'Jondal', note: 'Recovery lunch till 8pm' },
-    ],
-  },
-];
+// Per-element styling (not CMS-managed — design constants)
+const ELEMENT_STYLE: Record<string, { badgeClass: string; bgGradient: string; photoSrc: string; photoAlt: string }> = {
+  tierra: { badgeClass: 'bg-[rgba(125,78,30,.3)] border border-[rgba(125,78,30,.6)]',   bgGradient: 'linear-gradient(180deg, rgba(125,78,30,.06) 0%, transparent 60%)',    photoSrc: '/event-1.jpg', photoAlt: 'A Mi Manera, San Juan' },
+  agua:   { badgeClass: 'bg-[rgba(41,128,185,.25)] border border-[rgba(41,128,185,.5)]', bgGradient: 'linear-gradient(180deg, rgba(41,128,185,.07) 0%, transparent 60%)',  photoSrc: '/event-2.jpg', photoAlt: 'Cala Gracioneta' },
+  fuego:  { badgeClass: 'bg-[rgba(192,57,43,.25)] border border-[rgba(192,57,43,.5)]',   bgGradient: 'linear-gradient(180deg, rgba(192,57,43,.07) 0%, transparent 60%)',   photoSrc: '/event-3.jpg', photoAlt: 'Es Molí del Sal' },
+  aire:   { badgeClass: 'bg-[rgba(174,214,241,.2)] border border-[rgba(174,214,241,.4)]', bgGradient: 'linear-gradient(180deg, rgba(174,214,241,.05) 0%, transparent 60%)', photoSrc: '/event-4.jpg', photoAlt: 'Jondal Beach' },
+};
 
 export default function ScheduleSection() {
+  const { schedule } = useContent();
+  const DAYS = schedule.days;
   const [activeDay, setActiveDay] = useState(0);
   const timelineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -179,12 +52,8 @@ export default function ScheduleSection() {
         >
           <div className='text-[1.1rem] shrink-0 mt-[0.05rem]'>🔒</div>
           <div className='text-[0.82rem] text-palooza-sand leading-[1.65]'>
-            <strong className='text-palooza-ivory font-normal'>
-              Private event.
-            </strong>{' '}
-            This event is strictly for invited guests only. No plus-ones or
-            additional guests without prior approval from your host. Please
-            speak to Michael directly if you&apos;d like to discuss.
+            <strong className='text-palooza-ivory font-normal'>Private event.</strong>{' '}
+            {schedule.noticeBanner}
           </div>
         </div>
 
@@ -222,14 +91,14 @@ export default function ScheduleSection() {
               timelineRefs.current[i] = el;
             }}
             className={activeDay === i ? 'block' : 'hidden'}
-            style={{ background: day.bgGradient }}
+            style={{ background: ELEMENT_STYLE[day.element]?.bgGradient }}
           >
             {/* Day photo */}
             <div className='day-photo-overlay relative w-full h-auto mb-8 rounded-sm overflow-hidden'>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={day.photo.src}
-                alt={day.photo.alt}
+                src={ELEMENT_STYLE[day.element]?.photoSrc}
+                alt={ELEMENT_STYLE[day.element]?.photoAlt}
                 className='w-full h-[200px] object-cover object-center block brightness-75 saturate-[0.9] rounded-sm'
               />
               <div className='absolute bottom-4 left-6 z-[1]'>
@@ -248,7 +117,7 @@ export default function ScheduleSection() {
             {/* Day header */}
             <div className='flex items-center gap-4 mb-8'>
               <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center text-[1.4rem] shrink-0 ${day.badgeClass}`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-[1.4rem] shrink-0 ${ELEMENT_STYLE[day.element]?.badgeClass}`}
               >
                 {day.emoji}
               </div>

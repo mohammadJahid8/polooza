@@ -1,8 +1,13 @@
+'use client';
+
 import PaloozaLogo from '@/components/global/palooza-logo';
 import CountdownTimer from './countdown-timer';
 import AudioPlayer from './audio-player';
+import { useContent } from '@/lib/useContent';
 
 export default function HeroSection() {
+  const { hero } = useContent();
+
   return (
     <section
       id='home'
@@ -26,7 +31,7 @@ export default function HeroSection() {
       <div className='relative z-[1]'>
         {/* Tag */}
         <div className='text-[0.62rem] tracking-[0.32em] uppercase text-palooza-gold mb-[1.2rem] opacity-0 animate-[fadeUp_1s_ease_0.2s_forwards]'>
-          Chapter VI · Ibiza
+          {hero.tag}
         </div>
 
         {/* Logo */}
@@ -38,12 +43,12 @@ export default function HeroSection() {
 
         {/* Title */}
         <div className='font-[family-name:var(--font-cinzel)] text-[clamp(2.5rem,9vw,5rem)] font-normal leading-[1.05] tracking-[0.06em] text-palooza-ivory opacity-0 animate-[fadeUp_1s_ease_0.6s_forwards]'>
-          PALOOZA
+          {hero.title}
         </div>
 
         {/* Subtitle */}
         <div className='font-(family-name:--font-cormorant) italic text-[clamp(1.4rem,4vw,2.2rem)] text-palooza-gold tracking-[0.06em] mt-[0.4rem] opacity-0 animate-[fadeUp_1s_ease_0.75s_forwards]'>
-          Los Cuatro Elementos
+          {hero.subtitle}
         </div>
 
         {/* Elements */}
@@ -64,7 +69,7 @@ export default function HeroSection() {
 
         {/* Dates */}
         <div className='text-[0.65rem] tracking-[0.2em] uppercase text-palooza-sand mt-8 opacity-0 animate-[fadeUp_1s_ease_1.05s_forwards]'>
-          30 July – 2 August · Ibiza / Formentera
+          {hero.dates}
         </div>
 
         {/* Countdown */}

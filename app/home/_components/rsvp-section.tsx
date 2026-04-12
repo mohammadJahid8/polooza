@@ -2,66 +2,39 @@
 
 import { useState, useEffect } from 'react';
 import SectionHeader from '@/components/global/section-header';
-
-const EVENTS = [
-  {
-    key: 'soho',
-    name: 'A Mi Manera — Dinner & Party',
-    detail: 'Thursday 30 July · 20:30 till late · Secret garden takeover',
-  },
-  {
-    key: 'boats-fri',
-    name: 'Boats + Cala Gracioneta Lunch',
-    detail: 'Friday 31 July · Depart Marina Ibiza 11:00am',
-  },
-  {
-    key: 'bluemarlin',
-    name: 'Blue Marlin',
-    detail: 'Friday 31 July · 19:30 till late',
-  },
-  {
-    key: 'boats-sat',
-    name: 'Boats + Es Molí del Sal Lunch',
-    detail: 'Saturday 1 August · Depart Marina Ibiza 11:00am',
-  },
-  {
-    key: 'villa',
-    name: 'Private Villa Party — Khenya & Paede B2B',
-    detail: 'Saturday 1 August · 21:45 till very late',
-  },
-  {
-    key: 'jondal',
-    name: 'Jondal Recovery Lunch',
-    detail: 'Sunday 2 August · 14:30 till 8pm',
-  },
-];
-
-const ALLERGY_OPTIONS = [
-  'Vegetarian',
-  'Vegan',
-  'Gluten-free',
-  'Dairy-free',
-  'Nut allergy',
-  'Shellfish allergy',
-  'Halal',
-  'Kosher',
-  'None',
-];
+import api from '@/lib/api';
+import { useContent } from '@/lib/useContent';
 
 export default function RsvpSection() {
+  const { rsvp: cms } = useContent();
+
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [allergies, setAllergies] = useState<Set<string>>(new Set());
   const [name, setName] = useState('');
   const [otherAllergy, setOtherAllergy] = useState('');
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  /* Load existing RSVP on mount to pre-fill the form */
   useEffect(() => {
-    /* Check if already submitted */
-    const phone = localStorage.getItem('palooza_phone') || '';
-    const rsvps = JSON.parse(localStorage.getItem('palooza_rsvps') || '[]');
-    const existing = rsvps.find((r: { phone: string }) => r.phone === phone);
-    if (existing) setSubmitted(true);
+    const token = localStorage.getItem('palooza_token');
+    if (!token) return;
+
+    api
+      .get('/api/rsvps/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ data }) => {
+        if (!data.rsvp) return;
+        const r = data.rsvp;
+        setName(r.name || '');
+        setRsvpState(r.rsvp || {});
+        setAllergies(new Set(r.allergies || []));
+        setOtherAllergy(r.other || '');
+        setSubmitted(true);
+      })
+      .catch(() => {
+        // 404 = no RSVP yet — show empty form
+      });
   }, []);
 
   function showError(msg: string) {
@@ -88,41 +61,40 @@ export default function RsvpSection() {
     });
   }
 
-  function submitRsvp() {
+  async function submitRsvp() {
     if (!name.trim()) {
       showError('Please enter your name');
       return;
     }
-    const allAnswered = EVENTS.every((e) => rsvpState[e.key]);
+    const allAnswered = cms.events.every((e) => rsvpState[e.key]);
     if (!allAnswered) {
       showError('Please respond to every event');
       return;
     }
 
-    const phone = localStorage.getItem('palooza_phone') || '';
-    const data = {
-      phone,
-      name: name.trim(),
-      rsvp: rsvpState,
-      allergies: [...allergies],
-      other: otherAllergy.trim(),
-      submittedAt: new Date().toISOString(),
-    };
-
-    const all = JSON.parse(localStorage.getItem('palooza_rsvps') || '[]');
-    const idx = all.findIndex((r: { phone: string }) => r.phone === data.phone);
-    if (idx >= 0) all[idx] = data;
-    else all.push(data);
-    localStorage.setItem('palooza_rsvps', JSON.stringify(all));
-
-    // Also post to API
-    fetch('/.netlify/functions/save-rsvp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).catch(() => {});
-
-    setSubmitted(true);
+    const token = localStorage.getItem('palooza_token');
+    setLoading(true);
+    setError('');
+    try {
+      await api.post(
+        '/api/rsvps/submit',
+        {
+          name: name.trim(),
+          rsvp: rsvpState,
+          allergies: [...allergies],
+          other: otherAllergy.trim(),
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? 'Failed to submit. Please try again.';
+      showError(msg);
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -133,11 +105,17 @@ export default function RsvpSection() {
           <div className='text-center py-8'>
             <div className='text-[2.5rem] mb-4'>🌴</div>
             <div className='font-[family-name:var(--font-cinzel)] text-[1.3rem] text-palooza-ivory mb-2'>
-              You&apos;re confirmed
+              {cms.successTitle}
             </div>
-            <div className='font-(family-name:--font-cormorant) italic text-base text-palooza-sand'>
-              Thank you — we have everything we need. See you in Ibiza.
+            <div className='font-(family-name:--font-cormorant) italic text-base text-palooza-sand mb-6'>
+              {cms.successText}
             </div>
+            <button
+              onClick={() => setSubmitted(false)}
+              className='text-[0.6rem] tracking-[0.2em] uppercase text-palooza-gold/50 hover:text-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)]'
+            >
+              Edit my RSVP ↗
+            </button>
           </div>
         </div>
       </section>
@@ -150,10 +128,7 @@ export default function RsvpSection() {
         <SectionHeader label='Let Us Know' title='RSVP' />
 
         <p className='text-[0.88rem] text-palooza-sand leading-[1.7] mb-8'>
-          Please confirm your attendance for each event and let us know about
-          any dietary requirements. This helps with planning and means we can
-          make sure you&apos;re looked after at every venue. Once you confirm,
-          you are in…!
+          {cms.introText}
         </p>
 
         {/* Name input */}
@@ -178,19 +153,12 @@ export default function RsvpSection() {
 
         {/* Event cards */}
         <div className='flex flex-col gap-4 mb-8'>
-          {EVENTS.map((ev) => {
+          {cms.events.map((ev) => {
             const answer = rsvpState[ev.key];
-            const cardClass =
-              answer === 'yes'
-                ? 'border-[rgba(30,132,73,.5)] bg-[rgba(30,132,73,.06)]'
-                : answer === 'no'
-                  ? 'border-[rgba(192,57,43,.35)] bg-[rgba(192,57,43,.05)]'
-                  : 'border-[rgba(200,168,75,.18)]';
-
             return (
               <div
                 key={ev.key}
-                className={`glass p-[1.2rem_1.4rem] transition-colors duration-300 ${cardClass}`}
+                className='glass p-[1.2rem_1.4rem] transition-colors duration-300'
                 style={{
                   border:
                     answer === 'yes'
@@ -204,7 +172,6 @@ export default function RsvpSection() {
                       : answer === 'no'
                         ? 'rgba(192,57,43,.05)'
                         : 'rgba(255,255,255,.03)',
-                  animation: answer === 'yes' ? 'goldPulse .6s ease' : 'none',
                 }}
               >
                 <div className='flex justify-between items-start gap-4 max-[500px]:flex-col'>
@@ -221,8 +188,8 @@ export default function RsvpSection() {
                       onClick={() => rsvpSelect(ev.key, 'yes')}
                       className={`text-[0.6rem] tracking-[0.15em] uppercase py-[0.45rem] px-[0.8rem] cursor-pointer transition-all duration-200 font-[family-name:var(--font-jost)] whitespace-nowrap ${
                         answer === 'yes'
-                          ? 'bg-palooza-green text-white border-palooza-green'
-                          : 'bg-transparent text-[rgba(30,132,73,.8)] border-[rgba(30,132,73,.5)]'
+                          ? 'bg-palooza-green text-white'
+                          : 'bg-transparent text-[rgba(30,132,73,.8)]'
                       }`}
                       style={{
                         border:
@@ -237,8 +204,8 @@ export default function RsvpSection() {
                       onClick={() => rsvpSelect(ev.key, 'no')}
                       className={`text-[0.6rem] tracking-[0.15em] uppercase py-[0.45rem] px-[0.8rem] cursor-pointer transition-all duration-200 font-[family-name:var(--font-jost)] whitespace-nowrap ${
                         answer === 'no'
-                          ? 'bg-palooza-flame text-white border-palooza-flame'
-                          : 'bg-transparent text-[rgba(192,57,43,.7)] border-[rgba(192,57,43,.4)]'
+                          ? 'bg-palooza-flame text-white'
+                          : 'bg-transparent text-[rgba(192,57,43,.7)]'
                       }`}
                       style={{
                         border:
@@ -262,13 +229,13 @@ export default function RsvpSection() {
             Dietary requirements &amp; allergies
           </div>
           <div className='flex flex-wrap gap-2 mb-4'>
-            {ALLERGY_OPTIONS.map((opt) => (
+            {cms.allergyOptions.map((opt) => (
               <button
                 key={opt}
                 onClick={() => toggleAllergy(opt)}
                 className={`text-[0.7rem] tracking-[0.1em] py-[0.4rem] px-[0.85rem] cursor-pointer transition-all duration-200 font-[family-name:var(--font-jost)] bg-transparent ${
                   allergies.has(opt)
-                    ? 'bg-[rgba(200,168,75,.15)] border-palooza-gold text-palooza-gold'
+                    ? 'border-palooza-gold text-palooza-gold'
                     : 'text-palooza-sand'
                 }`}
                 style={{
@@ -297,9 +264,10 @@ export default function RsvpSection() {
         {/* Submit */}
         <button
           onClick={submitRsvp}
-          className='w-full bg-transparent border border-palooza-gold text-palooza-gold font-[family-name:var(--font-jost)] text-[0.65rem] tracking-[0.28em] uppercase py-4 cursor-pointer transition-all duration-300 hover:bg-palooza-gold hover:text-palooza-navy'
+          disabled={loading}
+          className='w-full bg-transparent border border-palooza-gold text-palooza-gold font-[family-name:var(--font-jost)] text-[0.65rem] tracking-[0.28em] uppercase py-4 cursor-pointer transition-all duration-300 hover:bg-palooza-gold hover:text-palooza-navy disabled:opacity-50'
         >
-          Submit RSVP ↗
+          {loading ? '...' : 'Submit RSVP ↗'}
         </button>
         {error && (
           <div className='text-[0.7rem] tracking-[0.1em] text-palooza-flame text-center min-h-4 mt-[0.8rem]'>

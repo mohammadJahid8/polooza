@@ -2,29 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import SectionHeader from '@/components/global/section-header';
-
-const DJS = [
-  {
-    time: 'Thu · Late',
-    name: 'Nfrtiti',
-    genre: 'DJ Set · A Mi Manera Private Takeover',
-    tag: 'Tierra',
-  },
-  {
-    time: 'Fri · 19:30',
-    name: 'Blue Marlin Residents',
-    genre: 'Balearic / Deep House',
-    tag: 'Agua',
-  },
-  {
-    time: 'Sat · Late',
-    name: 'Khenya & Paede',
-    genre: 'B2B · Private Villa · Peak Hour',
-    tag: 'Fuego',
-  },
-];
+import { useContent } from '@/lib/useContent';
 
 export default function MusicSection() {
+  const { music } = useContent();
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,14 +24,14 @@ export default function MusicSection() {
     );
     rows.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, [music.djs]);
 
   return (
     <section id='music' className='py-20 px-6 bg-palooza-deep'>
       <div className='max-w-[680px] mx-auto'>
         <SectionHeader label='The Soundtrack' title='Music' />
         <div ref={listRef} className='flex flex-col'>
-          {DJS.map((dj) => (
+          {music.djs.map((dj) => (
             <div
               key={dj.name}
               className='dj-row grid items-center gap-4 py-[1.1rem] opacity-0 translate-y-[10px] transition-all duration-500 max-[500px]:grid-cols-[70px_1fr]'

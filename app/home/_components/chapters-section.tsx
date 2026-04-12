@@ -2,36 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import SectionHeader from '@/components/global/section-header';
-
-const CHAPTERS = [
-  {
-    num: 'I',
-    location: 'Ibiza',
-    title: 'The 40th, Where It Began…',
-    photo: '/event-5.jpg',
-  },
-  { num: 'II', location: 'Ibiza', title: 'The Sequel…', photo: '/event-6.jpg' },
-  {
-    num: 'III',
-    location: 'Ibiza',
-    title: 'A Tale of Us…',
-    photo: '/event-7.jpg',
-  },
-  {
-    num: 'IV',
-    location: 'Formentera',
-    title: 'Quemar Los Barcos…',
-    photo: '/event-8.jpg',
-  },
-  {
-    num: 'V',
-    location: 'Ibiza',
-    title: 'I am the Storm…',
-    photo: '/event-9.jpg',
-  },
-];
+import { useContent } from '@/lib/useContent';
 
 export default function ChaptersSection() {
+  const { chapters } = useContent();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,14 +24,14 @@ export default function ChaptersSection() {
     );
     items.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, [chapters.items]);
 
   return (
     <section id='history' className='py-20 px-6 bg-palooza-navy'>
       <div className='max-w-[680px] mx-auto'>
         <SectionHeader label='The Journey' title='The Chapters' />
         <div ref={containerRef} className='flex flex-col gap-0'>
-          {CHAPTERS.map((ch) => (
+          {chapters.items.map((ch) => (
             <div
               key={ch.num}
               className='chapter-item grid gap-4 py-[1.2rem] opacity-0 -translate-x-3 transition-all duration-600'
@@ -73,14 +47,6 @@ export default function ChaptersSection() {
                 {ch.num}
               </div>
               <div>
-                <div className='chapter-photo-wrap relative overflow-hidden mb-[0.8rem]'>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={ch.photo}
-                    alt={`Chapter ${ch.num}`}
-                    className='w-full h-[200px] object-cover object-center block brightness-75 saturate-[0.9] transition-[filter] duration-400 hover:brightness-[0.9] hover:saturate-100'
-                  />
-                </div>
                 <div className='text-[0.6rem] tracking-[0.2em] uppercase text-palooza-gold mb-[0.3rem]'>
                   {ch.location}
                 </div>
@@ -100,23 +66,20 @@ export default function ChaptersSection() {
             background: 'rgba(200, 168, 75, .05)',
           }}
         >
-          {/* Gold top line */}
           <div
             className='absolute top-0 left-0 right-0 h-[2px]'
             style={{
-              background:
-                'linear-gradient(90deg, transparent, #C8A84B, transparent)',
+              background: 'linear-gradient(90deg, transparent, #C8A84B, transparent)',
             }}
           />
           <div className='text-[0.55rem] tracking-[0.28em] uppercase text-palooza-gold mb-2'>
-            Now · Chapter VI
+            {chapters.currentLabel}
           </div>
           <div className='font-[family-name:var(--font-cinzel)] text-[1.3rem] text-palooza-ivory mb-[0.3rem]'>
-            Los Cuatro Elementos
+            {chapters.currentTitle}
           </div>
           <div className='font-(family-name:--font-cormorant) italic text-base text-palooza-sand'>
-            Time to write the next chapter… · 30 July to 2 August · Ibiza /
-            Formentera
+            {chapters.currentSub}
           </div>
         </div>
       </div>
