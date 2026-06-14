@@ -12,6 +12,8 @@ export interface DayContent {
   subtitle: string;
   date: string;
   photo: { venue: string; time: string };
+  /** Cloudinary secure_url of an uploaded highlight video for this day (optional) */
+  video?: string;
   timeline: TimelineItem[];
 }
 

@@ -114,6 +114,25 @@ export default function ScheduleSection() {
               </div>
             </div>
 
+            {/* Day video (uploaded via the CMS) */}
+            {day.video && (
+              <div className='mb-8 flex justify-start'>
+                <div
+                  className='rounded-sm overflow-hidden max-w-full'
+                  style={{ border: '1px solid rgba(200, 168, 75, .25)' }}
+                >
+                  {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                  <video
+                    src={day.video}
+                    controls
+                    playsInline
+                    preload='metadata'
+                    className='block max-w-full max-h-[42vh]'
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Day header */}
             <div className='flex items-center gap-4 mb-8'>
               <div

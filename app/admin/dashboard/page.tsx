@@ -46,12 +46,20 @@ export default function AdminDashboardPage() {
     <>
       {/* Top bar */}
       <div className='flex justify-between items-center mb-6'>
-        <button
-          onClick={() => router.push('/admin/cms')}
-          className='text-[0.6rem] tracking-[0.18em] uppercase text-palooza-gold/60 hover:text-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)] border border-palooza-gold/20 hover:border-palooza-gold/50 px-3 py-1.5'
-        >
-          CMS ↗
-        </button>
+        <div className='flex items-center gap-3'>
+          <button
+            onClick={() => router.push('/admin/cms')}
+            className='text-[0.6rem] tracking-[0.18em] uppercase text-palooza-gold/60 hover:text-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)] border border-palooza-gold/20 hover:border-palooza-gold/50 px-3 py-1.5'
+          >
+            CMS ↗
+          </button>
+          <button
+            onClick={() => router.push('/admin/guests')}
+            className='text-[0.6rem] tracking-[0.18em] uppercase text-palooza-gold/60 hover:text-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)] border border-palooza-gold/20 hover:border-palooza-gold/50 px-3 py-1.5'
+          >
+            Guests ↗
+          </button>
+        </div>
         <button
           onClick={handleSignOut}
           className='text-[0.6rem] tracking-[0.18em] uppercase text-palooza-ivory/30 hover:text-palooza-flame transition-colors duration-200 font-[family-name:var(--font-jost)]'

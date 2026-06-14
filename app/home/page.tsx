@@ -5,8 +5,6 @@ import MusicSection from './_components/music-section';
 import TransportSection from './_components/transport-section';
 import NeedToKnowSection from './_components/need-to-know-section';
 import ChaptersSection from './_components/chapters-section';
-import MemoriesSection from './_components/memories-section';
-import UpdatesSection from './_components/updates-section';
 
 export default function HomePage() {
   return (
@@ -17,9 +15,7 @@ export default function HomePage() {
       <MusicSection />
       <TransportSection />
       <NeedToKnowSection />
-      <MemoriesSection />
       <ChaptersSection />
-      <UpdatesSection />
     </>
   );
 }

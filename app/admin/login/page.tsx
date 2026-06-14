@@ -28,10 +28,13 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.post('/api/auth/admin/login', { password: pw });
+      const { data } = await api.post('/api/auth/admin/login', {
+        password: pw,
+      });
       localStorage.setItem('palooza_admin_token', data.token);
       router.replace('/admin/dashboard');
     } catch (err: unknown) {
+      console.log('🚀 ~ handleLogin ~ err:', err);
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data
           ?.error ?? 'Something went wrong. Please try again.';

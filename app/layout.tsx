@@ -1,41 +1,50 @@
-import type { Metadata, Viewport } from "next";
-import { Jost, Cinzel, Cormorant_Garamond } from "next/font/google";
-import { cn } from "@/lib/utils";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import { Jost, Cinzel, Cormorant_Garamond } from 'next/font/google';
+import { cn } from '@/lib/utils';
+import PwaClientShell from '@/components/global/pwa-client-shell';
+import './globals.css';
 
 const jost = Jost({
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500"],
-  variable: "--font-jost",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['200', '300', '400', '500'],
+  variable: '--font-jost',
+  display: 'swap',
 });
 
 const cinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-cinzel",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-cinzel',
+  display: 'swap',
 });
 
 const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['300', '400', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
 });
 
 export const viewport: Viewport = {
-  themeColor: "#060F1A",
+  themeColor: '#060F1A',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export const metadata: Metadata = {
-  title: "Ibiza Palooza VI",
-  description: "Los Cuatro Elementos — 30 July – 2 August · Ibiza / Formentera",
+  applicationName: 'Ibiza Palooza VI',
+  title: 'Ibiza Palooza VI',
+  description: 'Los Cuatro Elementos — 30 July – 2 August · Ibiza / Formentera',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Palooza VI",
+    statusBarStyle: 'black-translucent',
+    title: 'Palooza VI',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
   },
 };
 
@@ -46,23 +55,24 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang='en'
       className={cn(
-        "h-full scroll-smooth",
+        'h-full scroll-smooth',
         jost.variable,
         cinzel.variable,
-        cormorant.variable
+        cormorant.variable,
       )}
       suppressHydrationWarning
     >
       <body
         className={cn(
-          "min-h-full flex flex-col overflow-x-hidden",
-          "bg-palooza-deep text-palooza-ivory",
-          "font-[family-name:var(--font-jost)] font-light"
+          'min-h-full flex flex-col overflow-x-hidden',
+          'bg-palooza-deep text-palooza-ivory',
+          'font-[family-name:var(--font-jost)] font-light',
         )}
       >
         {children}
+        <PwaClientShell />
       </body>
     </html>
   );
