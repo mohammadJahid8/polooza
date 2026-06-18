@@ -26,6 +26,9 @@ export default function DashboardPanel({
 }: DashboardPanelProps) {
   const [editing, setEditing] = useState<RsvpEntry | null>(null);
   const [creating, setCreating] = useState(false);
+  // Inline per-card delete: which phone is awaiting confirmation / mid-delete
+  const [confirmDeletePhone, setConfirmDeletePhone] = useState<string | null>(null);
+  const [deletingPhone, setDeletingPhone] = useState<string | null>(null);
   // Event names & allergy options for the editor — pulled from the live CMS
   // content so they match exactly what guests see, with built-in fallbacks.
   const [eventOptions, setEventOptions] = useState(
@@ -66,9 +69,22 @@ export default function DashboardPanel({
     setCreating(false);
   }
 
-  function handleDeleted(phone: string) {
-    onRefresh(rsvps.filter((r) => r.phone !== phone));
-    setEditing(null);
+  async function deleteRsvp(phone: string) {
+    const token = localStorage.getItem('palooza_admin_token');
+    if (!token) return;
+    setDeletingPhone(phone);
+    try {
+      await api.delete('/api/rsvps', {
+        params: { phone },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onRefresh(rsvps.filter((r) => r.phone !== phone));
+    } catch {
+      /* leave the entry in place if deletion failed */
+    } finally {
+      setDeletingPhone(null);
+      setConfirmDeletePhone(null);
+    }
   }
 
   /* Compute stats */
@@ -296,13 +312,46 @@ export default function DashboardPanel({
                   <div className='font-[family-name:var(--font-cinzel)] text-base text-palooza-ivory'>
                     {r.name || 'Unknown'}
                   </div>
-                  <button
-                    onClick={() => setEditing(r)}
-                    className='shrink-0 text-[0.55rem] tracking-[0.18em] uppercase text-palooza-gold/70 hover:text-palooza-navy hover:bg-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)] px-3 py-1'
-                    style={{ border: '1px solid rgba(200, 168, 75, .3)' }}
-                  >
-                    Edit ✎
-                  </button>
+                  <div className='flex items-center gap-2 shrink-0'>
+                    {confirmDeletePhone === r.phone ? (
+                      <>
+                        <span className='text-[0.55rem] tracking-[0.1em] uppercase text-palooza-flame'>
+                          Delete?
+                        </span>
+                        <button
+                          onClick={() => r.phone && deleteRsvp(r.phone)}
+                          disabled={deletingPhone === r.phone}
+                          className='text-[0.55rem] tracking-[0.18em] uppercase text-white bg-palooza-flame px-3 py-1 transition-opacity duration-200 disabled:opacity-50'
+                        >
+                          {deletingPhone === r.phone ? '…' : 'Yes'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeletePhone(null)}
+                          disabled={deletingPhone === r.phone}
+                          className='text-[0.55rem] tracking-[0.18em] uppercase text-palooza-ivory/40 hover:text-palooza-ivory/70 transition-colors duration-200 px-2 py-1'
+                        >
+                          No
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEditing(r)}
+                          className='text-[0.55rem] tracking-[0.18em] uppercase text-palooza-gold/70 hover:text-palooza-navy hover:bg-palooza-gold transition-colors duration-200 font-[family-name:var(--font-jost)] px-3 py-1'
+                          style={{ border: '1px solid rgba(200, 168, 75, .3)' }}
+                        >
+                          Edit ✎
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeletePhone(r.phone || null)}
+                          className='text-[0.55rem] tracking-[0.18em] uppercase text-palooza-flame/70 hover:text-palooza-navy hover:bg-palooza-flame transition-colors duration-200 font-[family-name:var(--font-jost)] px-3 py-1'
+                          style={{ border: '1px solid rgba(192, 57, 43, .4)' }}
+                        >
+                          Delete ✕
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className='text-[0.7rem] text-palooza-gold tracking-[0.1em] mb-[0.8rem]'>
                   {r.phone || ''}
@@ -380,7 +429,6 @@ export default function DashboardPanel({
           allergyOptions={allergyOptions}
           onClose={() => setEditing(null)}
           onSaved={handleSaved}
-          onDeleted={handleDeleted}
         />
       )}
 
