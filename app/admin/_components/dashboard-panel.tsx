@@ -66,6 +66,11 @@ export default function DashboardPanel({
     setCreating(false);
   }
 
+  function handleDeleted(phone: string) {
+    onRefresh(rsvps.filter((r) => r.phone !== phone));
+    setEditing(null);
+  }
+
   /* Compute stats */
   let guestsWithAllergies = 0;
   let totalYes = 0;
@@ -375,6 +380,7 @@ export default function DashboardPanel({
           allergyOptions={allergyOptions}
           onClose={() => setEditing(null)}
           onSaved={handleSaved}
+          onDeleted={handleDeleted}
         />
       )}
 

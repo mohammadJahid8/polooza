@@ -18,6 +18,8 @@ interface Props {
   allergyOptions: string[];
   onClose: () => void;
   onSaved: (updated: RsvpEntry) => void;
+  /** Called after an existing RSVP is deleted (edit mode only) */
+  onDeleted?: (phone: string) => void;
 }
 
 export default function RsvpEditModal({
@@ -27,6 +29,7 @@ export default function RsvpEditModal({
   allergyOptions,
   onClose,
   onSaved,
+  onDeleted,
 }: Props) {
   const [name, setName] = useState(entry?.name || '');
   const [phone, setPhone] = useState(entry?.phone || '');
@@ -38,6 +41,8 @@ export default function RsvpEditModal({
   );
   const [other, setOther] = useState(entry?.other || '');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState('');
 
   function setAnswer(key: string, answer: 'yes' | 'no') {
@@ -104,6 +109,30 @@ export default function RsvpEditModal({
       setError(msg);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!entry?.phone) return;
+    const token = localStorage.getItem('palooza_admin_token');
+    if (!token) {
+      setError('Session expired — please sign in again.');
+      return;
+    }
+    setDeleting(true);
+    setError('');
+    try {
+      await api.delete('/api/rsvps', {
+        params: { phone: entry.phone },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onDeleted?.(entry.phone);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? 'Failed to delete. Please try again.';
+      setError(msg);
+      setDeleting(false);
     }
   }
 
@@ -274,24 +303,60 @@ export default function RsvpEditModal({
         )}
 
         {/* Actions */}
-        <div className='flex items-center justify-end gap-3'>
-          <button
-            onClick={onClose}
-            className='text-[0.6rem] tracking-[0.2em] uppercase text-palooza-ivory/40 hover:text-palooza-ivory/70 transition-colors py-[0.6rem] px-4'
-          >
-            Cancel
-          </button>
-          <button
-            onClick={save}
-            disabled={saving}
-            className='bg-transparent border border-palooza-gold text-palooza-gold font-[family-name:var(--font-jost)] text-[0.6rem] tracking-[0.22em] uppercase py-[0.6rem] px-6 cursor-pointer transition-all duration-300 hover:bg-palooza-gold hover:text-palooza-navy disabled:opacity-50'
-          >
-            {saving
-              ? 'Saving…'
-              : mode === 'create'
-                ? 'Create RSVP ↗'
-                : 'Save changes ↗'}
-          </button>
+        <div className='flex items-center justify-between gap-3'>
+          {/* Delete (edit mode only) */}
+          <div>
+            {mode === 'edit' &&
+              (confirmDelete ? (
+                <div className='flex items-center gap-2'>
+                  <span className='text-[0.6rem] text-palooza-flame tracking-[0.05em]'>
+                    Delete?
+                  </span>
+                  <button
+                    onClick={remove}
+                    disabled={deleting}
+                    className='bg-palooza-flame text-white text-[0.58rem] tracking-[0.18em] uppercase py-[0.5rem] px-3 cursor-pointer transition-all duration-200 disabled:opacity-50'
+                  >
+                    {deleting ? 'Deleting…' : 'Yes'}
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={deleting}
+                    className='text-[0.58rem] tracking-[0.18em] uppercase text-palooza-ivory/40 hover:text-palooza-ivory/70 transition-colors py-[0.5rem] px-2'
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className='text-[0.58rem] tracking-[0.18em] uppercase text-palooza-flame/80 hover:text-palooza-flame transition-colors py-[0.6rem]'
+                >
+                  Delete ✕
+                </button>
+              ))}
+          </div>
+
+          {/* Cancel / Save */}
+          <div className='flex items-center gap-3'>
+            <button
+              onClick={onClose}
+              className='text-[0.6rem] tracking-[0.2em] uppercase text-palooza-ivory/40 hover:text-palooza-ivory/70 transition-colors py-[0.6rem] px-4'
+            >
+              Cancel
+            </button>
+            <button
+              onClick={save}
+              disabled={saving}
+              className='bg-transparent border border-palooza-gold text-palooza-gold font-[family-name:var(--font-jost)] text-[0.6rem] tracking-[0.22em] uppercase py-[0.6rem] px-6 cursor-pointer transition-all duration-300 hover:bg-palooza-gold hover:text-palooza-navy disabled:opacity-50'
+            >
+              {saving
+                ? 'Saving…'
+                : mode === 'create'
+                  ? 'Create RSVP ↗'
+                  : 'Save changes ↗'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
