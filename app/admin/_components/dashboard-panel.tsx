@@ -25,6 +25,7 @@ export default function DashboardPanel({
   onRefresh,
 }: DashboardPanelProps) {
   const [editing, setEditing] = useState<RsvpEntry | null>(null);
+  const [creating, setCreating] = useState(false);
   // Event names & allergy options for the editor — pulled from the live CMS
   // content so they match exactly what guests see, with built-in fallbacks.
   const [eventOptions, setEventOptions] = useState(
@@ -55,8 +56,14 @@ export default function DashboardPanel({
   }, []);
 
   function handleSaved(updated: RsvpEntry) {
-    onRefresh(rsvps.map((r) => (r.phone === updated.phone ? updated : r)));
+    const exists = rsvps.some((r) => r.phone === updated.phone);
+    onRefresh(
+      exists
+        ? rsvps.map((r) => (r.phone === updated.phone ? updated : r))
+        : [updated, ...rsvps],
+    );
     setEditing(null);
+    setCreating(false);
   }
 
   /* Compute stats */
@@ -90,14 +97,23 @@ export default function DashboardPanel({
 
   return (
     <div>
-      {/* Refresh button */}
-      <button
-        onClick={handleRefresh}
-        className='inline-block text-[0.6rem] tracking-[0.2em] uppercase text-palooza-gold bg-transparent py-2 px-4 cursor-pointer font-[family-name:var(--font-jost)] mb-6'
-        style={{ border: '1px solid rgba(200, 168, 75, .3)' }}
-      >
-        ↻ Refresh
-      </button>
+      {/* Actions */}
+      <div className='flex items-center gap-3 mb-6'>
+        <button
+          onClick={handleRefresh}
+          className='inline-block text-[0.6rem] tracking-[0.2em] uppercase text-palooza-gold bg-transparent py-2 px-4 cursor-pointer font-[family-name:var(--font-jost)]'
+          style={{ border: '1px solid rgba(200, 168, 75, .3)' }}
+        >
+          ↻ Refresh
+        </button>
+        <button
+          onClick={() => setCreating(true)}
+          className='inline-block text-[0.6rem] tracking-[0.2em] uppercase text-palooza-gold hover:text-palooza-navy hover:bg-palooza-gold bg-transparent py-2 px-4 cursor-pointer font-[family-name:var(--font-jost)] transition-colors duration-200'
+          style={{ border: '1px solid rgba(200, 168, 75, .3)' }}
+        >
+          + Add RSVP
+        </button>
+      </div>
 
       {/* Stats */}
       <div className='grid grid-cols-3 gap-4 mb-8'>
@@ -353,10 +369,22 @@ export default function DashboardPanel({
       {/* Host RSVP editor */}
       {editing && (
         <RsvpEditModal
+          mode='edit'
           entry={editing}
           events={eventOptions}
           allergyOptions={allergyOptions}
           onClose={() => setEditing(null)}
+          onSaved={handleSaved}
+        />
+      )}
+
+      {/* Host creating a new RSVP on a guest's behalf */}
+      {creating && (
+        <RsvpEditModal
+          mode='create'
+          events={eventOptions}
+          allergyOptions={allergyOptions}
+          onClose={() => setCreating(false)}
           onSaved={handleSaved}
         />
       )}

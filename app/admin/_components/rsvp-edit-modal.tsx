@@ -10,7 +10,10 @@ interface EventOption {
 }
 
 interface Props {
-  entry: RsvpEntry;
+  /** 'edit' amends an existing RSVP; 'create' adds a new one on a guest's behalf */
+  mode: 'create' | 'edit';
+  /** The RSVP being edited — omitted in create mode */
+  entry?: RsvpEntry;
   events: EventOption[];
   allergyOptions: string[];
   onClose: () => void;
@@ -18,20 +21,22 @@ interface Props {
 }
 
 export default function RsvpEditModal({
+  mode,
   entry,
   events,
   allergyOptions,
   onClose,
   onSaved,
 }: Props) {
-  const [name, setName] = useState(entry.name || '');
+  const [name, setName] = useState(entry?.name || '');
+  const [phone, setPhone] = useState(entry?.phone || '');
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({
-    ...(entry.rsvp || {}),
+    ...(entry?.rsvp || {}),
   });
   const [allergies, setAllergies] = useState<Set<string>>(
-    new Set(entry.allergies || []),
+    new Set(entry?.allergies || []),
   );
-  const [other, setOther] = useState(entry.other || '');
+  const [other, setOther] = useState(entry?.other || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -65,6 +70,10 @@ export default function RsvpEditModal({
       setError('Name is required.');
       return;
     }
+    if (mode === 'create' && !phone.trim()) {
+      setError('Phone number is required.');
+      return;
+    }
     const token = localStorage.getItem('palooza_admin_token');
     if (!token) {
       setError('Session expired — please sign in again.');
@@ -72,18 +81,21 @@ export default function RsvpEditModal({
     }
     setSaving(true);
     setError('');
+
+    const payload = {
+      phone: mode === 'create' ? phone.trim() : entry!.phone,
+      name: name.trim(),
+      rsvp: rsvpState,
+      allergies: [...allergies],
+      other: other.trim(),
+    };
+    const headers = { Authorization: `Bearer ${token}` };
+
     try {
-      const { data } = await api.put(
-        '/api/rsvps',
-        {
-          phone: entry.phone,
-          name: name.trim(),
-          rsvp: rsvpState,
-          allergies: [...allergies],
-          other: other.trim(),
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const { data } =
+        mode === 'create'
+          ? await api.post('/api/rsvps/admin', payload, { headers })
+          : await api.put('/api/rsvps', payload, { headers });
       onSaved(data.rsvp as RsvpEntry);
     } catch (err: unknown) {
       const msg =
@@ -113,11 +125,13 @@ export default function RsvpEditModal({
         <div className='flex items-start justify-between mb-5'>
           <div>
             <div className='text-[0.55rem] tracking-[0.25em] uppercase text-palooza-gold mb-1'>
-              Edit RSVP
+              {mode === 'create' ? 'New RSVP' : 'Edit RSVP'}
             </div>
-            <div className='text-[0.7rem] text-palooza-gold/70 tracking-[0.1em]'>
-              {entry.phone}
-            </div>
+            {mode === 'edit' && (
+              <div className='text-[0.7rem] text-palooza-gold/70 tracking-[0.1em]'>
+                {entry?.phone}
+              </div>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -140,6 +154,25 @@ export default function RsvpEditModal({
             onChange={(e) => setName(e.target.value)}
           />
         </div>
+
+        {/* Phone — editable only when creating a new RSVP */}
+        {mode === 'create' && (
+          <div className='flex flex-col gap-1 mb-5'>
+            <label className='text-[0.55rem] tracking-[0.2em] uppercase text-palooza-gold/70'>
+              Phone number
+            </label>
+            <input
+              className='w-full bg-transparent font-[family-name:var(--font-jost)] text-[0.9rem] text-palooza-ivory outline-none py-[0.5rem] placeholder:text-palooza-ivory/25'
+              style={{ borderBottom: '1px solid rgba(200,168,75,.3)' }}
+              placeholder='e.g. +447700900000'
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <span className='text-[0.58rem] text-palooza-ivory/30 italic mt-1'>
+              Use the same number the guest will sign in with.
+            </span>
+          </div>
+        )}
 
         {/* Event responses */}
         <div className='text-[0.55rem] tracking-[0.2em] uppercase text-palooza-gold/70 mb-2'>
@@ -253,7 +286,11 @@ export default function RsvpEditModal({
             disabled={saving}
             className='bg-transparent border border-palooza-gold text-palooza-gold font-[family-name:var(--font-jost)] text-[0.6rem] tracking-[0.22em] uppercase py-[0.6rem] px-6 cursor-pointer transition-all duration-300 hover:bg-palooza-gold hover:text-palooza-navy disabled:opacity-50'
           >
-            {saving ? 'Saving…' : 'Save changes ↗'}
+            {saving
+              ? 'Saving…'
+              : mode === 'create'
+                ? 'Create RSVP ↗'
+                : 'Save changes ↗'}
           </button>
         </div>
       </div>
